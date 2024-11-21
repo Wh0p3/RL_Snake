@@ -5,6 +5,7 @@ from collections import deque
 from game import SnakeGameAI,Direction,Point
 from model import Linear_Qnet,QTrainer
 from helper import plot
+from game import BLOCK_SIZE
 
 MAX_MEMORY=100_000
 BATCH_SIZE=1000
@@ -18,7 +19,7 @@ class Agent:
         self.epsilon=0#control the randomness
         self.gamma=0.9# ocntrol the discount rate
         self.memory=deque(maxlen=MAX_MEMORY)#new data type poplef() if memory is crossed
-        self.model=Linear_Qnet(11,256,3)
+        self.model= Linear_Qnet(11,256,3)
         self.trainer=QTrainer(self.model,lr=LR,gamma=self.gamma)
         #Model,trainer
 
@@ -35,23 +36,23 @@ class Agent:
        dir_d=game.direction==Direction.DOWN
 
        state=[
-           #danger ahead
-           (dir_r and game.is_collision(point_r)) or 
-           (dir_l and game.is_collision(point_l)) or
-           (dir_u and game.is_collision(point_u)) or
-           (dir_d and game.is_collision(point_d)) ,
-           #danger right
-
-           (dir_r and game.is_collision(point_d)) or 
-           (dir_l and game.is_collision(point_u)) or
-           (dir_u and game.is_collision(point_r)) or
-           (dir_d and game.is_collision(point_l)) ,
-           #danger left
-
-           (dir_r and game.is_collision(point_u)) or 
-           (dir_l and game.is_collision(point_d)) or
-           (dir_u and game.is_collision(point_l)) or
-           (dir_d and game.is_collision(point_r)) 
+           (dir_r and game.is_collision(point_r)) or
+            (dir_l and game.is_collision(point_l)) or
+            (dir_u and game.is_collision(point_u)) or
+            (dir_d and game.is_collision(point_d)),
+            
+            # Danger right
+            (dir_r and game.is_collision(Point(head.x, head.y + BLOCK_SIZE))) or
+            (dir_l and game.is_collision(Point(head.x, head.y - BLOCK_SIZE))) or
+            (dir_u and game.is_collision(Point(head.x + BLOCK_SIZE, head.y))) or
+            (dir_d and game.is_collision(Point(head.x - BLOCK_SIZE, head.y))),
+            
+            # Danger left
+            (dir_r and game.is_collision(Point(head.x, head.y - BLOCK_SIZE))) or
+            (dir_l and game.is_collision(Point(head.x, head.y + BLOCK_SIZE))) or
+            (dir_u and game.is_collision(Point(head.x - BLOCK_SIZE, head.y))) or
+            (dir_d and game.is_collision(Point(head.x + BLOCK_SIZE, head.y)))
+            
            ,
            dir_l,
            dir_r,
